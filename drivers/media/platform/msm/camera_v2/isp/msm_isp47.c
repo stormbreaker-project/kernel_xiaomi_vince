@@ -590,6 +590,15 @@ void msm_vfe47_read_and_clear_irq_status(struct vfe_device *vfe_dev,
 		count++;
 	}
 
+	/* check if status register is cleared if not clear again*/
+	while (*irq_status0 &&
+		(*irq_status0 & msm_camera_io_r(vfe_dev->vfe_base + 0x6C)) &&
+		(count < MAX_RECOVERY_THRESHOLD)) {
+		msm_camera_io_w(*irq_status0, vfe_dev->vfe_base + 0x64);
+		msm_camera_io_w_mb(1, vfe_dev->vfe_base + 0x58);
+		count++;
+	}
+
 	if (*irq_status1 & (1 << 0)) {
 		vfe_dev->error_info.camif_status =
 		msm_camera_io_r(vfe_dev->vfe_base + 0x4A4);
