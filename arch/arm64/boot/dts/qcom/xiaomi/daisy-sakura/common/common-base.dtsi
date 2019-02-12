@@ -1,0 +1,7 @@
+#include "common-pinctrl.dtsi"
+#include "common-pm.dtsi"
+#include "common-regulator.dtsi"
+#include "common-audio.dtsi"
+#include "common-mdss.dtsi"
+#include "common-qrd.dtsi"
+#include "common-camera.dtsi"
