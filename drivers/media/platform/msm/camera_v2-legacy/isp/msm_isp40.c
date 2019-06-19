@@ -174,14 +174,13 @@ static int32_t msm_vfe40_init_qos_parms(struct vfe_device *vfe_dev,
 				rc = of_property_read_u32_array(of_node,
 					qos_parms->settings,
 					qos_settings, qos_entries);
-				if (rc < 0) {
+				if (rc < 0)
 					pr_err("%s: NO QOS settings\n",
 						__func__);
-				} else {
+				else
 					for (i = 0; i < qos_entries; i++)
 						msm_camera_io_w(qos_settings[i],
 							vfebase + qos_regs[i]);
-				}
 			}
 		}
 		kfree(qos_settings);
