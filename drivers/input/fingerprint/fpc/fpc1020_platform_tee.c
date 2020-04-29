@@ -103,6 +103,10 @@ static int fpc1020_request_named_gpio(struct fpc1020_data *fpc1020,
 		const char *label, int *gpio);
 static int hw_reset(struct  fpc1020_data *fpc1020);
 
+#ifdef CONFIG_MACH_XIAOMI_MIDO
+static struct kernfs_node *soc_symlink = NULL;
+#endif
+
 static int vreg_setup(struct fpc1020_data *fpc1020, const char *name,
 	bool enable)
 {
@@ -680,6 +684,11 @@ static int fpc1020_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	int rc = 0;
+#ifdef CONFIG_MACH_XIAOMI_MIDO
+	struct device *platform_dev;
+	struct kobject *soc_kobj;
+	struct kernfs_node *devices_node, *soc_node;
+#endif
 	/* size_t i; */
 	struct device_node *np = dev->of_node;
 	struct fpc1020_data *fpc1020 = devm_kzalloc(dev, sizeof(*fpc1020),
@@ -711,7 +720,29 @@ static int fpc1020_probe(struct platform_device *pdev)
 		goto exit;
 	}
 
+#ifdef CONFIG_MACH_XIAOMI_MIDO
+	if(!dev->parent || !dev->parent->parent) {
+		dev_warn(dev, "Parent platform device not found");
+		goto exit;
+	}
 
+	platform_dev = dev->parent->parent;
+	if(strcmp(kobject_name(&platform_dev->kobj), "platform")) {
+		dev_warn(dev, "Parent platform device name not matched: %s", kobject_name(&platform_dev->kobj));
+		goto exit;
+	}
+
+	devices_node = platform_dev->kobj.sd->parent;
+	soc_kobj = &dev->parent->kobj;
+	soc_node = soc_kobj->sd;
+	kernfs_get(soc_node);
+
+	soc_symlink = kernfs_create_link(devices_node, kobject_name(soc_kobj), soc_node);
+	kernfs_put(soc_node);
+	if(IS_ERR(soc_symlink)) {
+		dev_warn(dev, "Unable to create soc symlink");
+	}
+#endif
 
 	/* rc = hw_reset(fpc1020); */
 
@@ -731,6 +762,11 @@ exit:
 
 static int fpc1020_remove(struct platform_device *pdev)
 {
+#ifdef CONFIG_MACH_XIAOMI_MIDO
+	if(!IS_ERR(soc_symlink)) {
+		kernfs_remove_by_name(soc_symlink->parent, soc_symlink->name);
+	}
+#endif
 	struct fpc1020_data *fpc1020 = platform_get_drvdata(pdev);
 
     /* add by zhongshengbin for fingerprint D1S-634 begin 2018-03-04 */
