@@ -1788,7 +1788,8 @@ static int32_t nvt_ts_resume(struct device *dev)
 
 #if defined(CONFIG_FB)
 
-#ifdef CONFIG_MACH_XIAOMI_VINCE
+//#ifdef CONFIG_MACH_XIAOMI_VINCE
+#if 0
 	static int fb_notifier_callback(struct notifier_block *self, unsigned long event, void *data)
 	{
 		struct fb_event *evdata = data;
