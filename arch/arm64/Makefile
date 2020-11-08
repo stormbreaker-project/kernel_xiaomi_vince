@@ -87,11 +87,6 @@ else
 KBUILD_CFLAGS	+= -mgeneral-regs-only
 endif
 KBUILD_CFLAGS	+= $(lseinstr) $(vdso32)
-
-ifeq ($(CONFIG_ARCH_MSM8953), y)
-KBUILD_CFLAGS	+= -mcpu=cortex-a53
-endif
-
 KBUILD_CFLAGS	+= -fno-asynchronous-unwind-tables
 KBUILD_CFLAGS	+= $(call cc-option, -mpc-relative-literal-loads)
 KBUILD_CFLAGS	+= -fno-pic
