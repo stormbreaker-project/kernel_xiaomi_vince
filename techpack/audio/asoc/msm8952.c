@@ -82,7 +82,11 @@ static int msm8952_wsa_switch_event(struct snd_soc_dapm_widget *w,
 static struct wcd_mbhc_config mbhc_cfg = {
 	.read_fw_bin = false,
 	.calibration = NULL,
+#ifdef CONFIG_MACH_XIAOMI_VINCE
 	.detect_extn_cable = false,
+#else
+	.detect_extn_cable = true,
+#endif
 	.mono_stero_detection = false,
 	.swap_gnd_mic = NULL,
 	.hs_ext_micbias = false,
@@ -92,10 +96,12 @@ static struct wcd_mbhc_config mbhc_cfg = {
 	.key_code[2] = KEY_VOLUMEUP,
 	.key_code[3] = KEY_VOLUMEDOWN,
 	*/
+#ifdef CONFIG_MACH_XIAOMI_VINCE
 	.key_code[0] = KEY_MEDIA,
 	.key_code[1] = BTN_1,
 	.key_code[2] = BTN_2,
 	.key_code[3] = 0,
+#endif
 	.key_code[4] = 0,
 	.key_code[5] = 0,
 	.key_code[6] = 0,
@@ -1523,7 +1529,13 @@ static void *def_msm8952_wcd_mbhc_cal(void)
 		return NULL;
 
 #define S(X, Y) ((WCD_MBHC_CAL_PLUG_TYPE_PTR(msm8952_wcd_cal)->X) = (Y))
+
+#ifdef CONFIG_MACH_XIAOMI_VINCE
 	S(v_hs_max, 1600);
+#else
+	S(v_hs_max, 1500);
+#endif
+
 #undef S
 #define S(X, Y) ((WCD_MBHC_CAL_BTN_DET_PTR(msm8952_wcd_cal)->X) = (Y))
 	S(num_btn, WCD_MBHC_DEF_BUTTONS);
@@ -1546,7 +1558,8 @@ static void *def_msm8952_wcd_mbhc_cal(void)
 	 * 210-290 == Button 2
 	 * 360-680 == Button 3
 	 */
-	#if defined(CONFIG_MBHC_UART)
+#ifdef CONFIG_MACH_XIAOMI_VINCE
+#ifdef CONFIG_MBHC_UART
 	btn_low[0] = 177;
 	btn_high[0] = 277;
 	btn_low[1] = 206;
@@ -1557,7 +1570,7 @@ static void *def_msm8952_wcd_mbhc_cal(void)
 	btn_high[3] = 612;
 	btn_low[4] = 243;
 	btn_high[4] = 612;
-	#else
+#else
 	btn_low[0] = 91;
 	btn_high[0] = 91;
 	btn_low[1] = 259;
@@ -1568,7 +1581,19 @@ static void *def_msm8952_wcd_mbhc_cal(void)
 	btn_high[3] = 488;
 	btn_low[4] = 488;
 	btn_high[4] = 488;
-	#endif
+#endif /* CONFIG_MBHC_UART */
+#else
+	btn_low[0] = 75;
+	btn_high[0] = 75;
+	btn_low[1] = 150;
+	btn_high[1] = 150;
+	btn_low[2] = 225;
+	btn_high[2] = 225;
+	btn_low[3] = 450;
+	btn_high[3] = 450;
+	btn_low[4] = 500;
+	btn_high[4] = 500;
+#endif /* CONFIG_MACH_XIAOMI_VINCE */
 
 	return msm8952_wcd_cal;
 }
